@@ -7,11 +7,20 @@ set -o pipefail
 # pip3 install torch==2.1.0 torchvision==0.16.0 xformers --index-url https://download.pytorch.org/whl/cu118
 
 # echo "📦 Installing StreamDiffusion from GitHub..."
-# pip install git+https://github.com/cumulo-autumn/StreamDiffusion.git@main#egg=streamdiffusion
+# pip install
+# git+https://github.com/cumulo-autumn/StreamDiffusion.git@main#egg=streamdiffusion
 
-echo "🌐 Installing Node.js and npm..."
-curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-apt install -y nodejs
+pip install -e .
+pip install "numpy<2"
+
+if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
+  echo "🌐 Installing Node.js and npm..."
+  curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+  apt install -y nodejs
+else
+  echo "✅ Node.js and npm already installed."
+fi
+
 
 echo "📁 Installing frontend dependencies and building UI..."
 cd ./demo/realtime-img2img/frontend
