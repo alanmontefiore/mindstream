@@ -21,33 +21,15 @@ import math
 base_model = "stabilityai/sd-turbo"
 taesd_model = "madebyollin/taesd"
 
-default_prompt = "Portrait of The Joker halloween costume, face painting, with , glare pose, detailed, intricate, full of colour, cinematic lighting, trending on artstation, 8k, hyperrealistic, focused, extreme details, unreal engine 5 cinematic, masterpiece"
-default_negative_prompt = "black and white, blurry, low resolution, pixelated,  pixel art, low quality, low fidelity"
-
-page_content = """<h1 class="text-3xl font-bold">StreamDiffusion</h1>
-<h3 class="text-xl font-bold">Image-to-Image SD-Turbo</h3>
-<p class="text-sm">
-    This demo showcases
-    <a
-    href="https://github.com/cumulo-autumn/StreamDiffusion"
-    target="_blank"
-    class="text-blue-500 underline hover:no-underline">StreamDiffusion
-</a>
-Image to Image pipeline using
-    <a
-    href="https://huggingface.co/stabilityai/sd-turbo"
-    target="_blank"
-    class="text-blue-500 underline hover:no-underline">SD-Turbo</a
-    > with a MJPEG stream server.
-</p>
-"""
+default_prompt = "Portrait of a beautiful woman, 1girl, looking at viewer, 8k, masterpiece, best quality, beautiful face, cute face, perfect anatomy, dynamic angle, soft lighting, detailed skin texture, intricate details"
+default_negative_prompt = "black"
 
 
 class Pipeline:
     class Info(BaseModel):
         name: str = "StreamDiffusion img2img"
         input_mode: str = "image"
-        page_content: str = page_content
+        page_content: str = ""
 
     class InputParams(BaseModel):
         prompt: str = Field(
