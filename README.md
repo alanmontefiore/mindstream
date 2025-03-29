@@ -1,5 +1,7 @@
 # MindStream
 
+`cd workspace`
+
 `git clone https://github.com/alanmontefiore/mindstream.git`
 
 `cd mindstream`
