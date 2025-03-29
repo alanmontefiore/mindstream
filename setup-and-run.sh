@@ -15,12 +15,19 @@ apt install -y nodejs
 
 echo "📁 Installing frontend dependencies and building UI..."
 cd ./demo/realtime-img2img/frontend
-npm install
-npm run build
+
+if [ ! -d "public" ]; then
+  echo "⚙️  Building frontend..."
+  npm install
+  npm run build
+else
+  echo "✅ Skipping build — 'public/' already exists."
+fi
 
 echo "📜 Installing Python dependencies..."
 cd ..
 pip install -r requirements.txt
+
 
 echo "🚀 Launching StreamDiffusion realtime img2img..."
 python main.py
