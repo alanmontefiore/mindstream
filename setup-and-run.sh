@@ -3,15 +3,7 @@
 set -e  # Exit on error
 set -o pipefail
 
-# echo "🔧 Installing PyTorch, torchvision, and xformers..."
-# pip3 install torch==2.1.0 torchvision==0.16.0 xformers --index-url https://download.pytorch.org/whl/cu118
-
-# echo "📦 Installing StreamDiffusion from GitHub..."
-# pip install
-# git+https://github.com/cumulo-autumn/StreamDiffusion.git@main#egg=streamdiffusion
-
-pip install -e .
-pip install "numpy<2"
+apt update && apt install -y nano
 
 if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
   echo "🌐 Installing Node.js and npm..."
@@ -32,11 +24,6 @@ if [ ! -d "public" ]; then
 else
   echo "✅ Skipping build — 'public/' already exists."
 fi
-
-echo "📜 Installing Python dependencies..."
-cd ..
-pip install -r requirements.txt
-
 
 echo "🚀 Launching StreamDiffusion realtime img2img..."
 python main.py
