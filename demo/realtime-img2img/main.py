@@ -78,11 +78,8 @@ class App:
                         await self.conn_manager.disconnect(user_id)
                         return
                     data = await self.conn_manager.receive_json(user_id)
-                    if data is None:
-                        logging.error(f"Received None data for user: {user_id}")
-                        await self.conn_manager.disconnect(user_id)
-                        return
-                    if data["status"] == "next_frame":
+                    
+                    if data is not None and data["status"] == "next_frame":
                         info = pipeline.Info()
                         params = await self.conn_manager.receive_json(user_id)
                         params = pipeline.InputParams(**params)
