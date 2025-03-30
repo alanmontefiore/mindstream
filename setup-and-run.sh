@@ -8,9 +8,6 @@ apt update && apt install -y nano && apt install -y lsof
 git fetch --all
 git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
 
-PORT=7860
-PID=$(lsof -ti :$PORT)
-
 if [ -n "$PID" ]; then
   echo "🔪 Killing process on port $PORT (PID: $PID)..."
   kill -9 $PID
