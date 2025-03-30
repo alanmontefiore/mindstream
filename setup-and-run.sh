@@ -13,4 +13,4 @@ chmod +x setup-and-run.sh
 cd ./demo/realtime-img2img
 
 echo "🚀 Launching StreamDiffusion realtime img2img..."
-python main.py
+python single.py
