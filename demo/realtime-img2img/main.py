@@ -111,11 +111,7 @@ class App:
                         params = SimpleNamespace(**params.dict())
                         if info.input_mode == "image":
                             image_data = await self.conn_manager.receive_bytes(user_id)
-                            if not image_data:
-                                logging.warning(f"WebSocket {user_id}: No image data received.")
-                                await self.conn_manager.send_json(user_id, {"status": "send_frame"})
-                                return
-                            if len(image_data) == 0:
+                            if image_data and len(image_data) == 0:
                                 await self.conn_manager.send_json(
                                     user_id, {"status": "send_frame"}
                                 )
