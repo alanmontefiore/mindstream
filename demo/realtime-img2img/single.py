@@ -91,6 +91,8 @@ class App:
                     image = self.pipeline.predict(self.latest_params)
                     if image is None:
                         continue
+                    if image is not None:
+                        image = (image + 1) / 2 
                     frame = pil_to_frame(image)
                     yield frame
                     if self.args.debug:
