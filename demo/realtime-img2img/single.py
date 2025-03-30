@@ -2,6 +2,7 @@ from fastapi import FastAPI, WebSocket, Request, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import PlainTextResponse
 import markdown2
 import logging
 import time
@@ -37,6 +38,11 @@ class App:
             allow_headers=["*"],
         )
 
+        @self.app.exception_handler(Exception)
+        async def global_exception_handler(request: Request, exc: Exception):
+            logging.error(f"Unhandled server error: {exc}")
+            return PlainTextResponse("An unexpected error occurred. Please try again later.", status_code=500)
+
         @self.app.websocket("/api/ws")
         async def websocket_endpoint(websocket: WebSocket):
             await websocket.accept()
@@ -52,28 +58,32 @@ class App:
             last_time = time.time()
             try:
                 while True:
-                    if self.args.timeout > 0 and time.time() - last_time > self.args.timeout:
-                        await websocket.send_json({"status": "timeout", "message": "Your session has ended"})
-                        await websocket.close()
-                        return
-                    data = await websocket.receive_json()
-                    if data is None:
-                        logging.error("Received None data")
-                        await websocket.close()
-                        return
-                    if data.get("status") == "next_frame":
-                        info = self.pipeline.Info()
-                        params_data = await websocket.receive_json()
-                        params = self.pipeline.InputParams(**params_data)
-                        params = SimpleNamespace(**params.dict())
-                        if info.input_mode == "image":
-                            image_data = await websocket.receive_bytes()
-                            if not image_data:
-                                await websocket.send_json({"status": "send_frame"})
-                                continue
-                            params.image = bytes_to_pil(image_data)
-                        self.latest_params = params
-                        last_time = time.time()
+                    try:
+                        if self.args.timeout > 0 and time.time() - last_time > self.args.timeout:
+                            await websocket.send_json({"status": "timeout", "message": "Your session has ended"})
+                            await websocket.close()
+                            return
+                        data = await websocket.receive_json()
+                        if data is None:
+                            logging.error("Received None data")
+                            await websocket.close()
+                            return
+                        if data.get("status") == "next_frame":
+                            info = self.pipeline.Info()
+                            params_data = await websocket.receive_json()
+                            params = self.pipeline.InputParams(**params_data)
+                            params = SimpleNamespace(**params.dict())
+                            if info.input_mode == "image":
+                                image_data = await websocket.receive_bytes()
+                                if not image_data:
+                                    await websocket.send_json({"status": "send_frame"})
+                                    continue
+                                params.image = bytes_to_pil(image_data)
+                            self.latest_params = params
+                            last_time = time.time()
+                    except Exception as e:
+                        logging.error(f"Error during WebSocket data handling: {e}")
+                        await websocket.send_json({"status": "error", "message": str(e)})
             except Exception as e:
                 logging.error(f"WebSocket processing error: {e}")
                 await websocket.close()
@@ -84,20 +94,22 @@ class App:
         async def stream(request: Request):
             async def generate():
                 while True:
-                    start = time.time()
-                    if self.latest_params is None:
-                        await asyncio.sleep(0.1)
-                        continue
-                    image = self.pipeline.predict(self.latest_params)
-                    if image is None:
-                        continue
-                    if image is not None:
-                        print(f"Image: {image}")
-                        # image = (image + 1) / 2 
-                    frame = pil_to_frame(image)
-                    yield frame
-                    if self.args.debug:
-                        print(f"Frame generated in {time.time() - start:.2f} seconds")
+                    try:
+                        start = time.time()
+                        if self.latest_params is None:
+                            await asyncio.sleep(0.1)
+                            continue
+                        image = self.pipeline.predict(self.latest_params)
+                        if image is None:
+                            continue
+                        frame = pil_to_frame(image)
+                        yield frame
+                        if self.args.debug:
+                            print(f"Frame generated in {time.time() - start:.2f} seconds")
+                    except Exception as e:
+                        logging.error(f"Error during frame generation: {e}")
+                        await asyncio.sleep(1) 
+                        
             return StreamingResponse(
                 generate(),
                 media_type="multipart/x-mixed-replace;boundary=frame",
