@@ -5,6 +5,9 @@ set -o pipefail
 
 apt update && apt install -y nano && apt install -y lsof
 
+git fetch --all
+git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
+
 cd ./demo/realtime-img2img
 
 echo "🚀 Launching StreamDiffusion realtime img2img..."
