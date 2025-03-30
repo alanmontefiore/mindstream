@@ -92,7 +92,8 @@ class App:
                     if image is None:
                         continue
                     if image is not None:
-                        image = (image + 1) / 2 
+                        print(f"Image: {image}")
+                        # image = (image + 1) / 2 
                     frame = pil_to_frame(image)
                     yield frame
                     if self.args.debug:
