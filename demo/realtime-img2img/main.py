@@ -78,7 +78,33 @@ class App:
                         await self.conn_manager.disconnect(user_id)
                         return
                     data = await self.conn_manager.receive_json(user_id)
-                    if data["status"] == "next_frame":
+
+                    if not data or not isinstance(data, dict):
+                        logging.warning(f"WebSocket {user_id}: Invalid or missing data")
+                        await self.conn_manager.disconnect(user_id)
+                        return
+
+                    if data.get("status") == "next_frame":
+                        info = pipeline.Info()
+                        params = await self.conn_manager.receive_json(user_id)
+
+                        if not params or not isinstance(params, dict):
+                            logging.warning(f"WebSocket {user_id}: Invalid params")
+                            await self.conn_manager.disconnect(user_id)
+                            return
+
+                        params = pipeline.InputParams(**params)
+                        params = SimpleNamespace(**params.dict())
+
+                        if info.input_mode == "image":
+                            image_data = await self.conn_manager.receive_bytes(user_id)
+                            if not image_data:
+                                await self.conn_manager.send_json(user_id, {"status": "send_frame"})
+                                return
+                            params.image = bytes_to_pil(image_data)
+
+                        await self.conn_manager.update_data(user_id, params)
+                        
                         info = pipeline.Info()
                         params = await self.conn_manager.receive_json(user_id)
                         params = pipeline.InputParams(**params)
