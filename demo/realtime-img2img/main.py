@@ -78,6 +78,9 @@ class App:
                         await self.conn_manager.disconnect(user_id)
                         return
                     data = await self.conn_manager.receive_json(user_id)
+                    if data is None:
+                        logging.warning(f"Received None data for user: {user_id}. Skipping iteration.")
+                        continue 
                     if data["status"] == "next_frame":
                         info = pipeline.Info()
                         params = await self.conn_manager.receive_json(user_id)
