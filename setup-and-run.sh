@@ -3,6 +3,11 @@
 set -e  # Exit on error
 set -o pipefail
 
+cd ./StreamDiffusion
+source .venv/bin/activate
+
+cd ../mindstream/
+
 apt update && apt install -y nano && apt install -y lsof
 
 git fetch --all
