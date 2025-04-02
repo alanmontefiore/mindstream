@@ -11,9 +11,9 @@ import json
 import tkinter as tk
 from PIL import ImageTk
 
-HOST = '113.29.247.148'
-PORT = 56562
-STATUS_PORT = 56561
+HOST = '213.173.110.171'
+PORT = 12046
+STATUS_PORT = 12045
 
 FPS_LIMIT = 1 / 22.0
 
@@ -34,7 +34,7 @@ def sender(sock):
             if not ret:
                 continue
 
-            resized = cv2.resize(frame, (256, 256))
+            resized = cv2.resize(frame, (512, 512))
             image = Image.fromarray(cv2.cvtColor(resized, cv2.COLOR_BGR2RGB))
 
             buf = io.BytesIO()
