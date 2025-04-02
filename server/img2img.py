@@ -78,6 +78,13 @@ class Pipeline:
         )
 
     def predict(self, params: InputParams) -> Image.Image:
+        self.stream.prepare(
+            prompt=default_prompt,
+            negative_prompt=default_negative_prompt,
+            num_inference_steps=params.num_inference_steps,
+            guidance_scale=params.guidance_scale,
+        )
+        
         pil_image = Image.open(io.BytesIO(params.image))
         image_tensor = self.stream.preprocess_image(pil_image)
         output_image = self.stream(
