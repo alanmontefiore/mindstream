@@ -16,7 +16,10 @@ from pydantic import BaseModel
 from PIL import Image
 from typing import Optional
 
-base_model = "stabilityai/sd-turbo"
+# base_model = "stabilityai/sd-turbo"
+base_model = "digiplay/LusterMix_v1.5_safetensors"
+# base_model = "stabilityai/stable-diffusion-3.5-large"
+# base_model = "digiplay/CleanLinearMix_nsfw"
 taesd_model = "madebyollin/taesd"
 
 default_prompt: str = "cats in a cyberpunk city"
