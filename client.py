@@ -11,9 +11,9 @@ import json
 import tkinter as tk
 from PIL import ImageTk
 
-HOST = '213.173.102.88'
-PORT = 16706
-STATUS_PORT = 16705
+HOST = '113.29.247.148'
+PORT = 56562
+STATUS_PORT = 56561
 
 FPS_LIMIT = 1 / 22.0
 
