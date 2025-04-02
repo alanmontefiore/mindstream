@@ -9,7 +9,7 @@ from img2img import Pipeline, InputParams
 
 class Args:
     taesd = True
-    acceleration = "none"  # or "xformers"
+    acceleration = "tensorrt"  # or "xformers"
     safety_checker = False
     engine_dir = "engines"
 
