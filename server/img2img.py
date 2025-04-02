@@ -69,6 +69,8 @@ class Pipeline:
         )
 
         self.last_prompt = default_prompt
+        self.last_guidance_scale = params.guidance_scale
+        self.last_num_inference_steps = params.num_inference_steps
         
         self.stream.prepare(
             prompt=default_prompt,
@@ -78,13 +80,21 @@ class Pipeline:
         )
 
     def predict(self, params: InputParams) -> Image.Image:
-        self.stream.prepare(
-            prompt=default_prompt,
-            negative_prompt=default_negative_prompt,
-            num_inference_steps=params.num_inference_steps,
-            guidance_scale=params.guidance_scale,
-        )
-        
+        # Check if guidance_scale or num_inference_steps has changed
+        if (
+            params.guidance_scale != self.last_guidance_scale
+            or params.num_inference_steps != self.last_num_inference_steps
+        ):
+            self.stream.prepare(
+                prompt=params.prompt,
+                negative_prompt=default_negative_prompt,
+                num_inference_steps=params.num_inference_steps,
+                guidance_scale=params.guidance_scale,
+            )
+            # Update the last used values
+            self.last_guidance_scale = params.guidance_scale
+            self.last_num_inference_steps = params.num_inference_steps
+
         pil_image = Image.open(io.BytesIO(params.image))
         image_tensor = self.stream.preprocess_image(pil_image)
         output_image = self.stream(
