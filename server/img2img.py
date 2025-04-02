@@ -61,7 +61,7 @@ class Pipeline:
             acceleration=args.acceleration,
             mode="img2img",
             use_denoising_batch=True,
-            cfg_type="none",
+            cfg_type="self",
             use_safety_checker=args.safety_checker,
             #enable_similar_image_filter=True,
             #similar_image_filter_threshold=0.98,
