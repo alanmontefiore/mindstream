@@ -9,48 +9,48 @@
 
 # StreamDiffusion: A Pipeline-Level Solution for Real-Time Interactive Generation
 
-**Authors:** [Akio Kodaira*](https://www.linkedin.com/in/akio-kodaira-1a7b98252/), [Chenfeng Xu*](https://www.chenfengx.com/), Toshiki Hazama*, [Takanori Yoshimoto](https://twitter.com/__ramu0e__), [Kohei Ohno](https://www.linkedin.com/in/kohei--ohno/), [Shogo Mitsuhori](https://me.ddpn.world/), [Soichi Sugano](https://twitter.com/toni_nimono), [Hanying Cho](https://twitter.com/hanyingcl), [Zhijian Liu](https://zhijianliu.com/), [Masayoshi Tomizuka](https://me.berkeley.edu/people/masayoshi-tomizuka/), [Kurt Keutzer](https://scholar.google.com/citations?hl=en&user=ID9QePIAAAAJ)
+**Authors:** [Akio Kodaira](https://www.linkedin.com/in/akio-kodaira-1a7b98252/), [Chenfeng Xu](https://www.chenfengx.com/), Toshiki Hazama, [Takanori Yoshimoto](https://twitter.com/__ramu0e__), [Kohei Ohno](https://www.linkedin.com/in/kohei--ohno/), [Shogo Mitsuhori](https://me.ddpn.world/), [Soichi Sugano](https://twitter.com/toni_nimono), [Hanying Cho](https://twitter.com/hanyingcl), [Zhijian Liu](https://zhijianliu.com/), [Kurt Keutzer](https://scholar.google.com/citations?hl=en&user=ID9QePIAAAAJ)
 
-StreamDiffusion is an innovative diffusion pipeline designed for real-time interactive generation. It introduces significant performance enhancements to current diffusion-based image generation techniques.
+StreamDiffusion は、リアルタイム画像生成を実現するために最適化されたパイプラインです。従来の画像生成パイプラインと比べて飛躍的な速度向上を実現しました。
 
 [![arXiv](https://img.shields.io/badge/arXiv-2312.12491-b31b1b.svg)](https://arxiv.org/abs/2312.12491)
-[![Hugging Face Papers](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-papers-yellow)](https://huggingface.co/papers/2312.12491)
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-yellow)](https://huggingface.co/papers/2312.12491)
 
-We sincerely thank [Taku Fujimoto](https://twitter.com/AttaQjp) and [Radamés Ajna](https://twitter.com/radamar) and Hugging Face team for their invaluable feedback, courteous support, and insightful discussions.
+StreamDiffusion の開発にあたり、丁寧なサポート、有意義なフィードバックと議論をしていただいた [Taku Fujimoto](https://twitter.com/AttaQjp) 様と [Radamés Ajna](https://twitter.com/radamar) 様、そして Hugging Face チームに心より感謝いたします。
 
-## Key Features
+## 主な特徴
 
 1. **Stream Batch**
 
-   - Streamlined data processing through efficient batch operations.
+   - デノイジングバッチ処理によるデータ処理の効率化
 
-2. **Residual Classifier-Free Guidance** - [Learn More](#residual-cfg-rcfg)
+2. **Residual Classifier-Free Guidance** - [詳細](#residual-cfg-rcfg)
 
-   - Improved guidance mechanism that minimizes computational redundancy.
+   - 計算の冗長性を最小限に抑える CFG
 
-3. **Stochastic Similarity Filter** - [Learn More](#stochastic-similarity-filter)
+3. **Stochastic Similarity Filter** - [詳細](#stochastic-similarity-filter)
 
-   - Improves GPU utilization efficiency through advanced filtering techniques.
+   - 類似度によるフィルタリングで GPU の使用効率を最大化
 
 4. **IO Queues**
 
-   - Efficiently manages input and output operations for smoother execution.
+   - 入出力操作を効率的に管理し、よりスムーズな実行を実現
 
 5. **Pre-Computation for KV-Caches**
 
-   - Optimizes caching strategies for accelerated processing.
+   - 高速処理のためのキャッシュ戦略を最適化します。
 
 6. **Model Acceleration Tools**
-   - Utilizes various tools for model optimization and performance boost.
+   - モデルの最適化とパフォーマンス向上のための様々なツールの利用
 
-When images are produced using our proposed StreamDiffusion pipeline in an environment with **GPU: RTX 4090**, **CPU: Core i9-13900K**, and **OS: Ubuntu 22.04.3 LTS**.
+**GPU: RTX 4090**, **CPU: Core i9-13900K**, **OS: Ubuntu 22.04.3 LTS**　環境で StreamDiffusion pipeline を用いて 画像を生成した場合、以下のような結果が得られました。
 
 |            model            | Denoising Step | fps on Txt2Img | fps on Img2Img |
 | :-------------------------: | :------------: | :------------: | :------------: |
 |          SD-turbo           |       1        |     106.16     |     93.897     |
 | LCM-LoRA <br>+<br> KohakuV2 |       4        |     38.023     |     37.133     |
 
-Feel free to explore each feature by following the provided links to learn more about StreamDiffusion's capabilities. If you find it helpful, please consider citing our work:
+_Feel free to explore each feature by following the provided links to learn more about StreamDiffusion's capabilities. If you find it helpful, please consider citing our work:_
 
 ```bash
 @article{kodaira2023streamdiffusion,
@@ -63,24 +63,28 @@ Feel free to explore each feature by following the provided links to learn more 
 }
 ```
 
-## Installation
+## インストール
 
-### Step0: clone this repository
+### 環境構築
+
+### Step0: リポジトリのクローン
 
 ```bash
 git clone https://github.com/cumulo-autumn/StreamDiffusion.git
 ```
 
-### Step1: Make Environment
+### Step1: 仮想環境構築
 
-You can install StreamDiffusion via pip, conda, or Docker(explanation below).
+anaconda、pip、または後述する Docker で仮想環境を作成します。
+
+anaconda を用いる場合
 
 ```bash
 conda create -n streamdiffusion python=3.10
 conda activate streamdiffusion
 ```
 
-OR
+pip を用いる場合
 
 ```cmd
 python -m venv .venv
@@ -90,9 +94,9 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-### Step2: Install PyTorch
+### Step2: PyTorch のインストール
 
-Select the appropriate version for your system.
+使用する GPU の CUDA バージョンに合わせて PyTorch をインストールしてください。
 
 CUDA 11.8
 
@@ -106,46 +110,46 @@ CUDA 12.1
 pip3 install torch==2.1.0 torchvision==0.16.0 xformers --index-url https://download.pytorch.org/whl/cu121
 ```
 
-details: https://pytorch.org/
+詳しくは[こちら](https://pytorch.org/)
 
-### Step3: Install StreamDiffusion
+### Step3: StreamDiffusion のインストール
 
-#### For User
+StreamDiffusion をインストール
 
-Install StreamDiffusion
+#### ユーザー向け
 
 ```bash
-#for Latest Version (recommended)
+#最新バージョン (推奨)
 pip install git+https://github.com/cumulo-autumn/StreamDiffusion.git@main#egg=streamdiffusion[tensorrt]
 
 
-#or
+#もしくは
 
 
-#for Stable Version
+#リリースバージョン
 pip install streamdiffusion[tensorrt]
 ```
 
-Install TensorRT extension
+TensorRT 拡張をインストール
 
 ```bash
 python -m streamdiffusion.tools.install-tensorrt
 ```
 
-(Only for Windows) You may need to install pywin32 additionally, if you installed Stable Version(`pip install streamdiffusion[tensorrt]`).
+(Only for Windows)リリースバージョン(`pip install streamdiffusion[tensorrt]`)では pywin32 のインストールが別途必要です。
 
 ```bash
 pip install --force-reinstall pywin32
 ```
 
-#### For Developer
+#### 開発者向け
 
 ```bash
 python setup.py develop easy_install streamdiffusion[tensorrt]
 python -m streamdiffusion.tools.install-tensorrt
 ```
 
-### Docker Installation (TensorRT Ready)
+### Docker の場合(TensorRT 対応)
 
 ```bash
 git clone https://github.com/cumulo-autumn/StreamDiffusion.git
@@ -154,33 +158,35 @@ docker build -t stream-diffusion:latest -f Dockerfile .
 docker run --gpus all -it -v $(pwd):/home/ubuntu/streamdiffusion stream-diffusion:latest
 ```
 
-## Quick Start
+## 動作例
 
-You can try StreamDiffusion in [`examples`](./examples) directory.
+[`examples`](./examples) からサンプルを実行できます。
 
 | ![画像3](./assets/demo_02.gif) | ![画像4](./assets/demo_03.gif) |
 | :----------------------------: | :----------------------------: |
 | ![画像5](./assets/demo_04.gif) | ![画像6](./assets/demo_05.gif) |
 
+具体的な詳細設定及びユーザカスタマイズは以下をお読みください。
+
 ## Real-Time Txt2Img Demo
 
-There is an interactive txt2img demo in [`demo/realtime-txt2img`](./demo/realtime-txt2img) directory!
+リアルタイムの txt2img デモは [`demo/realtime-txt2img`](./demo/realtime-txt2img)にあります。
 
 <p align="center">
-  <img src="./assets/demo_01.gif" width=100%>
+  <img src="./assets/demo_01.gif" width=80%>
 </p>
 
 ## Real-Time Img2Img Demo
 
-There is a real time img2img demo with a live webcam feed or screen capture on a web browser in [`demo/realtime-img2img`](./demo/realtime-img2img) directory!
+Web カメラを使ったリアルタイムの img2img デモは [`demo/realtime-img2img`](./demo/realtime-img2img)にあります。
 
 <p align="center">
   <img src="./assets/img2img1.gif" width=100%>
 </p>
 
-## Usage Example
+## 使用例
 
-We provide a simple example of how to use StreamDiffusion. For more detailed examples, please refer to [`examples`](./examples) directory.
+シンプルな StreamDiffusion の使用例を取り上げる. より詳細かつ様々な使用例は[`examples`](./examples)を参照してください。
 
 ### Image-to-Image
 
@@ -192,40 +198,39 @@ from diffusers.utils import load_image
 from streamdiffusion import StreamDiffusion
 from streamdiffusion.image_utils import postprocess_image
 
-# You can load any models using diffuser's StableDiffusionPipeline
 pipe = StableDiffusionPipeline.from_pretrained("KBlueLeaf/kohaku-v2.1").to(
     device=torch.device("cuda"),
     dtype=torch.float16,
 )
 
-# Wrap the pipeline in StreamDiffusion
+# Diffusers pipelineをStreamDiffusionにラップ
 stream = StreamDiffusion(
     pipe,
     t_index_list=[32, 45],
     torch_dtype=torch.float16,
 )
 
-# If the loaded model is not LCM, merge LCM
+# 読み込んだモデルがLCMでなければマージする
 stream.load_lcm_lora()
 stream.fuse_lora()
-# Use Tiny VAE for further acceleration
+# Tiny VAEで高速化
 stream.vae = AutoencoderTiny.from_pretrained("madebyollin/taesd").to(device=pipe.device, dtype=pipe.dtype)
-# Enable acceleration
+# xformersで高速化
 pipe.enable_xformers_memory_efficient_attention()
 
 
 prompt = "1girl with dog hair, thick frame glasses"
-# Prepare the stream
+# streamを準備する
 stream.prepare(prompt)
 
-# Prepare image
+# 画像を読み込む
 init_image = load_image("assets/img2img_example.png").resize((512, 512))
 
 # Warmup >= len(t_index_list) x frame_buffer_size
 for _ in range(2):
     stream(init_image)
 
-# Run the stream infinitely
+# 実行
 while True:
     x_output = stream(init_image)
     postprocess_image(x_output, output_type="pil")[0].show()
@@ -243,15 +248,14 @@ from diffusers import AutoencoderTiny, StableDiffusionPipeline
 from streamdiffusion import StreamDiffusion
 from streamdiffusion.image_utils import postprocess_image
 
-# You can load any models using diffuser's StableDiffusionPipeline
 pipe = StableDiffusionPipeline.from_pretrained("KBlueLeaf/kohaku-v2.1").to(
     device=torch.device("cuda"),
     dtype=torch.float16,
 )
 
-# Wrap the pipeline in StreamDiffusion
-# Requires more long steps (len(t_index_list)) in text2image
-# You recommend to use cfg_type="none" when text2image
+# Diffusers pipelineをStreamDiffusionにラップ
+# text2imageにおいてはより長いステップ(len(t_index_list))を要求する
+# text2imageにおいてはcfg_type="none"が推奨される
 stream = StreamDiffusion(
     pipe,
     t_index_list=[0, 16, 32, 45],
@@ -259,24 +263,24 @@ stream = StreamDiffusion(
     cfg_type="none",
 )
 
-# If the loaded model is not LCM, merge LCM
+# 読み込んだモデルがLCMでなければマージする
 stream.load_lcm_lora()
 stream.fuse_lora()
-# Use Tiny VAE for further acceleration
+# Tiny VAEで高速化
 stream.vae = AutoencoderTiny.from_pretrained("madebyollin/taesd").to(device=pipe.device, dtype=pipe.dtype)
-# Enable acceleration
+# xformersで高速化
 pipe.enable_xformers_memory_efficient_attention()
 
 
 prompt = "1girl with dog hair, thick frame glasses"
-# Prepare the stream
+# streamを準備する
 stream.prepare(prompt)
 
 # Warmup >= len(t_index_list) x frame_buffer_size
 for _ in range(4):
     stream()
 
-# Run the stream infinitely
+# 実行
 while True:
     x_output = stream.txt2img()
     postprocess_image(x_output, output_type="pil")[0].show()
@@ -285,17 +289,17 @@ while True:
         break
 ```
 
-You can make it faster by using SD-Turbo.
+SD-Turbo を使用するとさらに高速化も可能である
 
-### Faster generation
+### More fast generation
 
-Replace the following code in the above example.
+上のコードの以下の部分を書き換えることで、より高速な生成が可能である。
 
 ```python
 pipe.enable_xformers_memory_efficient_attention()
 ```
 
-To
+以下に書き換える
 
 ```python
 from streamdiffusion.acceleration.tensorrt import accelerate_with_tensorrt
@@ -305,15 +309,15 @@ stream = accelerate_with_tensorrt(
 )
 ```
 
-It requires TensorRT extension and time to build the engine, but it will be faster than the above example.
+ただし、TensorRT のインストールとエンジンのビルドに時間を要する。
 
-## Optionals
+## オプション
 
 ### Stochastic Similarity Filter
 
 ![demo](assets/demo_06.gif)
 
-Stochastic Similarity Filter reduces processing during video input by minimizing conversion operations when there is little change from the previous frame, thereby alleviating GPU processing load, as shown by the red frame in the above GIF. The usage is as follows:
+Stochastic Similarity Filter は動画入力時、前フレームからあまり変化しないときの変換処理を減らすことで、上の GIF の赤枠の様に GPU の負荷を軽減する。使用方法は以下のとおりである。
 
 ```python
 stream = StreamDiffusion(
@@ -327,39 +331,46 @@ stream.enable_similar_image_filter(
 )
 ```
 
-There are the following parameters that can be set as arguments in the function:
+関数で設定できる引数として以下がある。
 
 #### `similar_image_filter_threshold`
 
-- The threshold for similarity between the previous frame and the current frame before the processing is paused.
+- 処理を休止する前フレームと現フレームの類似度の閾値
 
 #### `similar_image_filter_max_skip_frame`
 
-- The maximum interval during the pause before resuming the conversion.
+- 休止中に変換を再開する最大の間隔
 
 ### Residual CFG (RCFG)
 
 ![rcfg](assets/cfg_conparision.png)
 
-RCFG is a method for approximately realizing CFG with competitive computational complexity compared to cases where CFG is not used. It can be specified through the cfg_type argument in the StreamDiffusion. There are two types of RCFG: one with no specified items for negative prompts RCFG Self-Negative and one where negative prompts can be specified RCFG Onetime-Negative. In terms of computational complexity, denoting the complexity without CFG as N and the complexity with a regular CFG as 2N, RCFG Self-Negative can be computed in N steps, while RCFG Onetime-Negative can be computed in N+1 steps.
+RCFG は CFG 使用しない場合と比較し、競争力のある計算量で近似的に CFG を実現させる方法である。StreamDiffusion の引数 cfg_type から指定可能である。
+
+RCFG は二種類あり、negative prompt の指定項目なしの RCFG Self-Negative と negative prompt が指定可能な Onetime-Negative が利用可能である。計算量は CFG なしの計算量を N、通常の CFG ありの計算量を２ N としたとき、RCFG Self-Negative は N 回で、Onetime-Negative は N+1 回で計算できる。
 
 The usage is as follows:
 
 ```python
-# w/0 CFG
+# CFG なし
 cfg_type = "none"
-# CFG
+
+# 通常のCFG
 cfg_type = "full"
+
 # RCFG Self-Negative
 cfg_type = "self"
+
 # RCFG Onetime-Negative
 cfg_type = "initialize"
+
 stream = StreamDiffusion(
     pipe,
     [32, 45],
     torch_dtype=torch.float16,
     cfg_type=cfg_type,
 )
+
 stream.prepare(
     prompt="1girl, purple hair",
     guidance_scale=guidance_scale,
@@ -367,9 +378,9 @@ stream.prepare(
 )
 ```
 
-The delta has a moderating effect on the effectiveness of RCFG.
+delta は RCFG の効きをマイルドにする効果を持つ
 
-## Development Team
+## 開発チーム
 
 [Aki](https://twitter.com/cumulo_autumn),
 [Ararat](https://twitter.com/AttaQjp),
@@ -384,15 +395,13 @@ The delta has a moderating effect on the effectiveness of RCFG.
 (\*alphabetical order)
 </br>
 
-## Acknowledgements
+## 謝辞
 
-The video and image demos in this GitHub repository were generated using [LCM-LoRA](https://huggingface.co/latent-consistency/lcm-lora-sdv1-5) + [KohakuV2](https://civitai.com/models/136268/kohaku-v2) and [SD-Turbo](https://arxiv.org/abs/2311.17042).
+この GitHub リポジトリ にある動画と画像のデモは、[LCM-LoRA](https://huggingface.co/latent-consistency/lcm-lora-sdv1-5) + [KohakuV2](https://civitai.com/models/136268/kohaku-v2)と[SD-Turbo](https://arxiv.org/abs/2311.17042)を使用して生成されました。
 
-Special thanks to [LCM-LoRA authors](https://latent-consistency-models.github.io/) for providing the LCM-LoRA and Kohaku BlueLeaf ([@KBlueleaf](https://twitter.com/KBlueleaf)) for providing the KohakuV2 model and ,to [Stability AI](https://ja.stability.ai/) for [SD-Turbo](https://arxiv.org/abs/2311.17042).
+LCM-LoRA を提供していただいた[LCM-LoRA authors](https://latent-consistency-models.github.io/)、KohakuV2 モデルを提供していただいた Kohaku BlueLeaf 様 ([@KBlueleaf](https://twitter.com/KBlueleaf))、[SD-Turbo](https://arxiv.org/abs/2311.17042)を提供していただいた[Stability AI](https://ja.stability.ai/)様に心より感謝いたします。
 
-KohakuV2 Models can be downloaded from [Civitai](https://civitai.com/models/136268/kohaku-v2) and [Hugging Face](https://huggingface.co/KBlueLeaf/kohaku-v2.1).
-
-SD-Turbo is also available on [Hugging Face Space](https://huggingface.co/stabilityai/sd-turbo).
+KohakuV2 モデルは [Civitai](https://civitai.com/models/136268/kohaku-v2) と [Hugging Face](https://huggingface.co/KBlueLeaf/kohaku-v2.1) からダウンロードでき、[SD-Turbo](https://huggingface.co/stabilityai/sd-turbo) は Hugging Face で使用可能です。
 
 ## Contributors
 

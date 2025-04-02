@@ -94,19 +94,13 @@ class ConnectionManager:
         except Exception as e:
             logging.error(f"Error: Send json: {e}")
 
-
-    async def receive_json(self, user_id: UUID) -> Union[Dict, None]:
+    async def receive_json(self, user_id: UUID) -> Dict:
         try:
             websocket = self.get_websocket(user_id)
             if websocket:
-                data = await websocket.receive_json()
-                if not isinstance(data, dict):
-                    logging.warning(f"WebSocket {user_id}: Invalid JSON received.")
-                    return None
-                return data
+                return await websocket.receive_json()
         except Exception as e:
-            logging.error(f"WebSocket {user_id}: Error receiving JSON: {e}")
-            return None
+            logging.error(f"Error: Receive json: {e}")
 
     async def receive_bytes(self, user_id: UUID) -> bytes:
         try:
