@@ -1,5 +1,7 @@
 # MindStream
 
+`cd workspace/mindstream/`
+
 `source .venv/bin/activate`
 
 `apt update && apt install -y nano && apt install -y lsof`
