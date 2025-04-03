@@ -4,8 +4,13 @@ import struct
 import io
 import json
 import torch
+import time
+import uuid
 
 from img2img import Pipeline, InputParams
+
+# Dictionary to track send times
+send_times = {}
 
 class Args:
     taesd = True
@@ -52,6 +57,12 @@ def handle_status_data(status_conn):
         status_conn.close()
 
 # === Receiver: handles both image + status based on prefix ===
+import time
+import uuid
+
+# Dictionary to track send times
+send_times = {}
+
 def receive_image(conn):
     while True:
         try:
@@ -79,8 +90,19 @@ def receive_image(conn):
                         return
                     data += chunk
 
-                img_bytes = process_image(data)
-                send_image(img_bytes, conn)
+                # Extract the ID and image bytes
+                id_length = struct.unpack('>I', data[:4])[0]
+                image_id = data[4:4 + id_length].decode()
+                image_bytes = data[4 + id_length:]
+
+                # Record the send time
+                send_times[image_id] = time.time()
+
+                # Process the image
+                img_bytes = process_image(image_bytes)
+
+                # Send the image back with the ID
+                send_image(image_id, img_bytes, conn)
             else:
                 print(f"[Receive] Unknown prefix: {prefix}")
         except Exception as e:
@@ -133,9 +155,20 @@ def process_image(data):
         print(f"[Process] Error: {e}")
 
 # === Send back to client ===
-def send_image(data, conn):
+def send_image(image_id, data, conn):
     try:
-        conn.sendall(struct.pack('>I', len(data)) + data)
+        # Encode the ID and image data
+        id_encoded = image_id.encode()
+        id_length = struct.pack('>I', len(id_encoded))
+        payload = id_length + id_encoded + data
+
+        # Send the payload
+        conn.sendall(struct.pack('>I', len(payload)) + payload)
+
+        # Calculate and log the duration
+        if image_id in send_times:
+            duration = time.time() - send_times.pop(image_id)
+            print(f"[Send] Image ID: {image_id}, Duration: {duration:.2f} seconds")
     except Exception as e:
         print(f"[Send] Error: {e}")
         return
