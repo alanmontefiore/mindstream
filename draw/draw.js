@@ -17,6 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
   canvas.width = 512;
   canvas.height = 512;
 
+  const MIN_INTERVAL = 1000 / 5;
+  const IMAGE_QUALITY = 0.25;
+  const SEND_CANVAS_SIZE = 256;
+
   // Default brush settings
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
@@ -244,7 +248,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("WebSocket connection closed");
   };
 
-  const MIN_INTERVAL = 1000 / 15;
   let lastFrameTime = 0;
 
   const sendCanvasFrame = () => {
@@ -255,18 +258,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     lastFrameTime = now;
 
-    canvas.toBlob(
+    // Create an offscreen canvas for resizing
+    const offscreenCanvas = document.createElement("canvas");
+    const offscreenCtx = offscreenCanvas.getContext("2d");
+
+    offscreenCanvas.width = SEND_CANVAS_SIZE;
+    offscreenCanvas.height = SEND_CANVAS_SIZE;
+
+    // Draw the current canvas content onto the offscreen canvas
+    offscreenCtx.drawImage(canvas, 0, 0, SEND_CANVAS_SIZE, SEND_CANVAS_SIZE);
+
+    // Convert the offscreen canvas to a blob and send it
+    offscreenCanvas.toBlob(
       (blob) => {
         if (blob && ws.readyState === WebSocket.OPEN) {
           const reader = new FileReader();
           reader.onload = () => {
             ws.send(reader.result);
           };
-          reader.readAsArrayBuffer(blob); // Read the blob as a data URL
+          reader.readAsArrayBuffer(blob); // Read the blob as an ArrayBuffer
         }
       },
       "image/jpeg",
-      0.85
-    ); // Adjust quality as needed
+      IMAGE_QUALITY
+    );
   };
 });

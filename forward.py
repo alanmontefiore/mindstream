@@ -26,7 +26,7 @@ send_queue = queue.Queue()
 display_queue = queue.Queue()
 send_times = {}
 
-status_data = {"prompt": "a sensual woman made of light, psychedelic patterns, glowing neon lines, fractal background, surreal lighting, trippy dreamscape, high detail, colorful", "width": 512, "height": 512, "quality": 85, "seed": 42, "num_inference_steps": 50, "guidance_scale": 5.2}
+status_data = {"prompt": "psychedelic patterns, cats, colorful", "width": 512, "height": 512, "quality": 85, "seed": 42, "num_inference_steps": 50, "guidance_scale": 5.2}
 
 # === Receiver thread: get processed image and show ===
 def receiver(sock):
