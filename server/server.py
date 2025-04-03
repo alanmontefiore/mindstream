@@ -92,7 +92,9 @@ def receive_image(conn):
 
                 # Extract the ID and image bytes
                 id_length = struct.unpack('>I', data[:4])[0]
+                print(f"[Debug] ID length: {id_length}")
                 image_id = data[4:4 + id_length].decode()
+                print(f"[Debug] Image ID: {image_id}")
                 image_bytes = data[4 + id_length:]
 
                 # Record the send time

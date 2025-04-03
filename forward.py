@@ -59,6 +59,7 @@ def receiver(sock):
                 # Process the image
                 img = Image.open(io.BytesIO(image_data))
                 frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+
                 display_queue.put(frame)
             except Exception as e:
                 print(f"Receiver error: Invalid image data - {e}")
@@ -84,14 +85,16 @@ async def handle_local_server(websocket):
                 image_id = str(uuid.uuid4())
                 send_times[image_id] = time.time()
 
-                # Prepare the data with the ID
-                data_with_id = json.dumps({"id": image_id}).encode() + img_bytes
+                id_encoded = image_id.encode()
+                id_length = struct.pack('>I', len(id_encoded))
+                payload = id_length + id_encoded + img_bytes
 
-                # Forward to the remote server with a prefix and 4-byte length header
-                sock.sendall(b'I' + struct.pack('>I', len(data_with_id)) + data_with_id)
+                print(f"[Debug] Sending ID: {image_id}")
+                print(f"[Debug] ID length: {len(id_encoded)}")
+                print(f"[Debug] Image data size: {len(img_bytes)}")
 
-                # Forward to the remote server with a prefix and 4-byte length header
-                # sock.sendall(b'I' + struct.pack('>I', len(img_bytes)) + img_bytes)# Forward to the remote server
+                # Send the payload
+                sock.sendall(struct.pack('>I', len(payload)) + payload)
             else:
                 print(f"[WebSocket] Unknown message type: {type(message)}")
                 continue
