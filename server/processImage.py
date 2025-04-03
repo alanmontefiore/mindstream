@@ -5,6 +5,7 @@ import threading
 params_lock = threading.Lock()
 
 def process_image(pipeline, image_bytes: bytes, shared_params: InputParams):
+    print(f"[Process] Received image data size: {len(image_bytes)} bytes")
     try:
         with params_lock:
             prompt = shared_params.prompt
