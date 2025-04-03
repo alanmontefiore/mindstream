@@ -66,7 +66,7 @@ def receiver(sock):
                 # Calculate the round-trip duration
                 if image_id in send_times:
                     duration = time.time() - send_times.pop(image_id)
-                    print(f"[Receiver] Image ID: {image_id}, Duration: {duration:.2f} seconds")
+                    print(f"[Receiver] FRT Duration: {duration:.2f} seconds")
 
                 # Process and display the image
                 img = Image.open(io.BytesIO(image_data))
@@ -100,10 +100,6 @@ async def handle_local_server(websocket):
                 id_encoded = image_id.encode()
                 id_length = struct.pack('>I', len(id_encoded))
                 payload = id_length + id_encoded + img_bytes
-
-                print(f"[Debug] Sending ID: {image_id}")
-                print(f"[Debug] ID length: {len(id_encoded)}")
-                print(f"[Debug] Image data size: {len(img_bytes)}")
 
                 # Prepend prefix 'I' and the payload length before sending
                 full_payload = b'I' + struct.pack('>I', len(payload)) + payload
