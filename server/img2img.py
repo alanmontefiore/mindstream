@@ -17,11 +17,11 @@ from PIL import Image
 from typing import Optional
 
 # base_model = "stabilityai/sd-turbo"
-base_model = "digiplay/LusterMix_v1.5_safetensors"
+# base_model = "digiplay/LusterMix_v1.5_safetensors"
 # base_model = "stabilityai/stable-diffusion-3.5-large"
 # base_model = "digiplay/CleanLinearMix_nsfw"
 # base_model = "digiplay/Colorful_v3.1"
-# base_model = "recoilme/colorfulxl"
+base_model = "recoilme/colorfulxl"
 
 taesd_model = "madebyollin/taesd"
 

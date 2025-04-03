@@ -13,9 +13,9 @@ import websockets
 import tkinter as tk
 from PIL import ImageTk
 
-HOST = '213.173.110.171'
-PORT = 12046
-STATUS_PORT = 12045
+HOST = '213.173.110.94'
+PORT = 47962
+STATUS_PORT = 47961
 LOCAL_WS_PORT = 8765
 
 FPS_LIMIT = 1 / 22.0
