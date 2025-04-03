@@ -55,7 +55,7 @@ button {
     display: block;
 }
 
-#result {
+#resultCanvas {
     background : #000; 
     display: block;
     width: 512px;

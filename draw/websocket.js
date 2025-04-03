@@ -1,10 +1,23 @@
 const HOST = "localhost";
-const PORT = 8765;
+const PORT = 5001;
+
+const IMAGE_QUALITY = 0.85;
+const SEND_CANVAS_SIZE = 256;
 
 const ws = new WebSocket(`ws://${HOST}:${PORT}/ws`);
 
 ws.onopen = () => {
   console.log("WebSocket connection established");
+  const status_data = {
+    prompt: "psychedelic patterns, cats, colorful",
+    width: 512,
+    height: 512,
+    quality: 85,
+    seed: 42,
+    num_inference_steps: 50,
+    guidance_scale: 5.2,
+  };
+  ws.send(JSON.stringify(status_data));
 };
 
 ws.onerror = (error) => {
@@ -16,20 +29,26 @@ ws.onclose = () => {
 };
 
 let lastFrameTime = 0;
+let sendNextFrame = true;
+
+const waitForResponse = () =>
+  new Promise((resolve) => {
+    const handler = (event) => {
+      ws.removeEventListener("message", handler);
+      sendNextFrame = true;
+      console.log("Received response:", event.data);
+      resolve(event.data);
+    };
+    ws.addEventListener("message", handler);
+  });
 
 const sendCanvasFrame = () => {
-  const MIN_INTERVAL = 1000 / 5;
-  const IMAGE_QUALITY = 0.25;
-  const SEND_CANVAS_SIZE = 256;
+  if (!sendNextFrame) return;
 
-  const now = performance.now();
-  if (now - lastFrameTime < MIN_INTERVAL) {
-    console.log("Frame skipped due to rate limiting");
-    return;
-  }
-  lastFrameTime = now;
+  sendNextFrame = false;
 
   const canvas = document.getElementById("paint");
+  const resultCanvas = document.getElementById("resultCanvas");
 
   // Create an offscreen canvas for resizing
   const offscreenCanvas = document.createElement("canvas");
@@ -46,8 +65,23 @@ const sendCanvasFrame = () => {
     (blob) => {
       if (blob && ws.readyState === WebSocket.OPEN) {
         const reader = new FileReader();
-        reader.onload = () => {
+        reader.onload = async () => {
           ws.send(reader.result);
+
+          const response = await waitForResponse();
+          // populate the canvas with the received image
+          const img = new Image();
+          img.src = URL.createObjectURL(new Blob([response]));
+
+          img.onload = () => {
+            const ctx = resultCanvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, resultCanvas.width, resultCanvas.height);
+            URL.revokeObjectURL(img.src);
+          };
+
+          img.onerror = (error) => {
+            console.error("Error loading image:", error);
+          };
         };
         reader.readAsArrayBuffer(blob);
       }
