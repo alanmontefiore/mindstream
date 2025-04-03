@@ -11,15 +11,12 @@ document.addEventListener("DOMContentLoaded", () => {
     hue: 0,
     mouse: { current: { x: 0, y: 0 }, last: { x: 0, y: 0 } },
     webcamStream: null,
+    hexagonAnimation: false,
   };
 
   // Set canvas dimensions
   canvas.width = 512;
   canvas.height = 512;
-
-  const MIN_INTERVAL = 1000 / 5;
-  const IMAGE_QUALITY = 0.25;
-  const SEND_CANVAS_SIZE = 256;
 
   // Default brush settings
   ctx.lineJoin = "round";
@@ -34,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const clearButton = document.getElementById("clearButton");
   const eraserButton = document.getElementById("eraserButton");
   const modeSelector = document.getElementById("modeSelector");
+  const hexagonButton = document.getElementById("hexagonButton");
 
   const tools = [
     colorPicker,
@@ -168,6 +166,28 @@ document.addEventListener("DOMContentLoaded", () => {
         colorPicker.classList.add("selected");
       }, 100);
     }
+
+    if (tool.id === "hexagonButton") {
+      if (toolStatus.hexagonAnimation) {
+        console.log("Hexagon", toolStatus.hexagonAnimation);
+        toolStatus.hexagonAnimation.stop();
+        ctx.strokeStyle = colorPicker.value; // Reset to selected color
+        eraserButton.classList.remove("selected");
+        hexagonButton.classList.remove("selected");
+        rainbowButton.classList.remove("selected");
+        colorPicker.classList.add("selected");
+      } else {
+        console.log("Hexagon start", toolStatus.hexagonAnimation);
+        toolStatus.hexagonAnimation = createHexagonAnimation(canvas);
+        toolStatus.hexagonAnimation.start();
+        toolStatus.rainbow = false;
+        toolStatus.eraser = false;
+        colorPicker.classList.remove("selected");
+        rainbowButton.classList.remove("selected");
+        eraserButton.classList.remove("selected");
+        hexagonButton.classList.add("selected");
+      }
+    }
   };
 
   // Update colorPicker value when a new color is selected
@@ -197,6 +217,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const newSize = e.target.value;
     ctx.lineWidth = newSize; // Update brush size
     sizeDisplay.textContent = newSize; // Update size display
+  });
+
+  hexagonButton.addEventListener("click", () => {
+    manageActiveTool(hexagonButton);
   });
 
   const hslToHex = (h, s, l) => {
@@ -231,56 +255,5 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.stroke();
 
     sendCanvasFrame();
-  };
-
-  // WebSocket setup
-  const ws = new WebSocket("ws://localhost:8765");
-
-  ws.onopen = () => {
-    console.log("WebSocket connection established");
-  };
-
-  ws.onerror = (error) => {
-    console.error("WebSocket error:", error);
-  };
-
-  ws.onclose = () => {
-    console.log("WebSocket connection closed");
-  };
-
-  let lastFrameTime = 0;
-
-  const sendCanvasFrame = () => {
-    const now = performance.now();
-    if (now - lastFrameTime < MIN_INTERVAL) {
-      console.log("Frame skipped due to rate limiting");
-      return; // Skip sending - not enough time has elapsed
-    }
-    lastFrameTime = now;
-
-    // Create an offscreen canvas for resizing
-    const offscreenCanvas = document.createElement("canvas");
-    const offscreenCtx = offscreenCanvas.getContext("2d");
-
-    offscreenCanvas.width = SEND_CANVAS_SIZE;
-    offscreenCanvas.height = SEND_CANVAS_SIZE;
-
-    // Draw the current canvas content onto the offscreen canvas
-    offscreenCtx.drawImage(canvas, 0, 0, SEND_CANVAS_SIZE, SEND_CANVAS_SIZE);
-
-    // Convert the offscreen canvas to a blob and send it
-    offscreenCanvas.toBlob(
-      (blob) => {
-        if (blob && ws.readyState === WebSocket.OPEN) {
-          const reader = new FileReader();
-          reader.onload = () => {
-            ws.send(reader.result);
-          };
-          reader.readAsArrayBuffer(blob); // Read the blob as an ArrayBuffer
-        }
-      },
-      "image/jpeg",
-      IMAGE_QUALITY
-    );
   };
 });

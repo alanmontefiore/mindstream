@@ -5,7 +5,10 @@
         <title>Drawing Pad</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="./draw.css" />
+        <script src="./websocket.js"></script>
         <script src="./draw.js"></script>
+        <script src="./effects/hexagon.js"></script>
+
     </head>
     <body>
         <div class="settings">
@@ -14,9 +17,11 @@
                 <option value="webcam">Webcam</option>
             </select>
         </div>
-        <div id="sketch">
+        <div class="feeds">            
             <canvas id="paint"></canvas>
+            <canvas id="result"></canvas>
         </div>
+        
         <div class="settings">
             <input type="color" id="colorPicker" value="#ff0000">
             <button id="rainbowButton">
@@ -32,6 +37,9 @@
                 <input type="range" id="sizePicker" min="3" max="100" value="20">
                 <span id="sizeDisplay">20</span>
             </div>
+            <button id="hexagonButton">
+                <img src="./hexagon.svg" alt="Hexagon Icon" width="16" height="16">
+            </button>
         </div>
     </body>
 </html>
