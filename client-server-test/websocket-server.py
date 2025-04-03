@@ -2,10 +2,31 @@ import asyncio
 import time
 import json
 import websockets
+import torch # type: ignore
+
+from img2img import Pipeline, InputParams
+from processImage import process_image
 
 IMAGE_PORT = 5001
 
 WIDTH, HEIGHT = 512, 512
+
+class Args:
+    taesd = True
+    acceleration = "none"  # or tensorrt or xformers
+    safety_checker = False
+    engine_dir = "engines"
+
+# === Pipeline Initialization ===
+print("Initializing pipeline...")
+
+pipeline = Pipeline(
+    args=Args(),
+    device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+    torch_dtype=torch.float16,
+)
+
+shared_params = InputParams()
 
 async def handle_json_status(message):
     try:
@@ -23,9 +44,7 @@ async def handle_websocket(websocket):
         elif isinstance(message, bytes):
             print(f"[WebSocket] Received frame data of size: {len(message)} bytes")
 
-            # Simulate processing time
-            time.sleep(0.2)
-            result_bytes = message
+            result_bytes = process_image(pipeline, message, shared_params)
 
             if result_bytes is None:
                 print("[process_image] No result bytes received.")

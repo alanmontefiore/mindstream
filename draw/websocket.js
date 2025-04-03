@@ -1,5 +1,5 @@
-const HOST = "localhost";
-const PORT = 5001;
+const HOST = "213.173.109.169";
+const PORT = 36545;
 
 const IMAGE_QUALITY = 0.85;
 const SEND_CANVAS_SIZE = 256;
