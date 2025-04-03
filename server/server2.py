@@ -56,8 +56,12 @@ async def handle_client(reader, writer):
 
             # Put the peeked byte back for frame reading
             image_bytes = peek + await reader.readexactly(FRAME_SIZE - 1)
-            
+
             result_bytes = process_image(pipeline, image_bytes, shared_params)
+
+            if result_bytes is None:
+                print("[process_image] No result bytes received.")
+                continue
 
             # Ensure correct size
             if len(result_bytes) != FRAME_SIZE:

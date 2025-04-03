@@ -13,8 +13,8 @@ FRAME_SIZE = WIDTH * HEIGHT * 3
 
 status_data = {"prompt": "psychedelic patterns, cats, colorful", "width": 512, "height": 512, "quality": 85, "seed": 42, "num_inference_steps": 50, "guidance_scale": 5.2}
 
-HOST = 'localhost'
-PORT = 5001
+HOST = '213.173.110.135'
+PORT = 18885
 LOCAL_WS_PORT = 8765
 
 client = None
