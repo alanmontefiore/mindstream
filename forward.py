@@ -12,6 +12,8 @@ import asyncio
 import websockets
 import tkinter as tk
 from PIL import ImageTk
+import uuid
+import time
 
 HOST = '213.173.102.212'
 PORT = 12006
@@ -22,6 +24,7 @@ FPS_LIMIT = 1 / 22.0
 
 send_queue = queue.Queue()
 display_queue = queue.Queue()
+send_times = {}
 
 status_data = {"prompt": "a sensual woman made of light, psychedelic patterns, glowing neon lines, fractal background, surreal lighting, trippy dreamscape, high detail, colorful", "width": 512, "height": 512, "quality": 85, "seed": 42, "num_inference_steps": 50, "guidance_scale": 5.2}
 
@@ -43,7 +46,18 @@ def receiver(sock):
                 data += chunk
 
             try:
-                img = Image.open(io.BytesIO(data))
+                # Extract the ID and image data
+                id_length = struct.unpack('>I', data[:4])[0]
+                image_id = data[4:4 + id_length].decode()
+                image_data = data[4 + id_length:]
+
+                # Calculate the duration
+                if image_id in send_times:
+                    duration = time.time() - send_times.pop(image_id)
+                    print(f"[Receiver] Image ID: {image_id}, Duration: {duration:.2f} seconds")
+
+                # Process the image
+                img = Image.open(io.BytesIO(image_data))
                 frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
                 display_queue.put(frame)
             except Exception as e:
@@ -67,12 +81,20 @@ async def handle_local_server(websocket):
         async for message in websocket:
             if isinstance(message, bytes):
                 img_bytes = message
+                image_id = str(uuid.uuid4())
+                send_times[image_id] = time.time()
+
+                # Prepare the data with the ID
+                data_with_id = json.dumps({"id": image_id}).encode() + img_bytes
+
+                # Forward to the remote server with a prefix and 4-byte length header
+                sock.sendall(b'I' + struct.pack('>I', len(data_with_id)) + data_with_id)
+
+                # Forward to the remote server with a prefix and 4-byte length header
+                # sock.sendall(b'I' + struct.pack('>I', len(img_bytes)) + img_bytes)# Forward to the remote server
             else:
                 print(f"[WebSocket] Unknown message type: {type(message)}")
                 continue
-
-            # Forward to the remote server with a prefix and 4-byte length header
-            sock.sendall(b'I' + struct.pack('>I', len(img_bytes)) + img_bytes)# Forward to the remote server
 
     except websockets.exceptions.ConnectionClosed as e:
         print(f"[WebSocket] Connection closed: {e}")
