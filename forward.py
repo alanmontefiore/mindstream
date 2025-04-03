@@ -23,7 +23,7 @@ FPS_LIMIT = 1 / 22.0
 send_queue = queue.Queue()
 display_queue = queue.Queue()
 
-status_data = {"prompt": "african woman", "width": 512, "height": 512, "quality": 85, "seed": 42, "num_inference_steps": 50, "guidance_scale": 5.2}
+status_data = {"prompt": "a sensual woman made of light, psychedelic patterns, glowing neon lines, fractal background, surreal lighting, trippy dreamscape, high detail, colorful", "width": 512, "height": 512, "quality": 85, "seed": 42, "num_inference_steps": 50, "guidance_scale": 5.2}
 
 # === Receiver thread: get processed image and show ===
 def receiver(sock):
