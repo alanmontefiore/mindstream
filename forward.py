@@ -32,16 +32,28 @@ status_data = {"prompt": "a sensual woman made of light, psychedelic patterns, g
 def receiver(sock):
     try:
         while True:
+            # Read and check prefix
+            prefix = sock.recv(1)
+            if not prefix:
+                print("Receiver error: Connection closed or missing prefix")
+                break
+            if prefix != b'R':
+                print(f"Receiver error: Unexpected prefix: {prefix}")
+                continue
+
+            # Read payload size (4 bytes)
             size_data = sock.recv(4)
             if not size_data or len(size_data) < 4:
                 print("Receiver error: Connection closed or incomplete size data")
                 break
             size = struct.unpack('>I', size_data)[0]
 
+            # Read the payload data
             data = b''
             while len(data) < size:
                 chunk = sock.recv(size - len(data))
                 if not chunk:
+                    print("Receiver error: Connection closed during payload read")
                     return
                 data += chunk
 
@@ -51,20 +63,20 @@ def receiver(sock):
                 image_id = data[4:4 + id_length].decode()
                 image_data = data[4 + id_length:]
 
-                # Calculate the duration
+                # Calculate the round-trip duration
                 if image_id in send_times:
                     duration = time.time() - send_times.pop(image_id)
                     print(f"[Receiver] Image ID: {image_id}, Duration: {duration:.2f} seconds")
 
-                # Process the image
+                # Process and display the image
                 img = Image.open(io.BytesIO(image_data))
                 frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-
                 display_queue.put(frame)
             except Exception as e:
                 print(f"Receiver error: Invalid image data - {e}")
     except Exception as e:
         print(f"Receiver error: {e}")
+
 
 # === Function to Update Prompt ===
 def update_params(status_sock):
@@ -93,16 +105,14 @@ async def handle_local_server(websocket):
                 print(f"[Debug] ID length: {len(id_encoded)}")
                 print(f"[Debug] Image data size: {len(img_bytes)}")
 
-                # Send the payload
-                sock.sendall(struct.pack('>I', len(payload)) + payload)
+                # Prepend prefix 'I' and the payload length before sending
+                full_payload = b'I' + struct.pack('>I', len(payload)) + payload
+                sock.sendall(full_payload)
             else:
                 print(f"[WebSocket] Unknown message type: {type(message)}")
-                continue
-
-    except websockets.exceptions.ConnectionClosed as e:
-        print(f"[WebSocket] Connection closed: {e}")
     except Exception as e:
         print(f"[WebSocket] Error: {e}")
+
 
 
 async def start_local_websocket_server():

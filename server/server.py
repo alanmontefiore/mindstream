@@ -159,21 +159,20 @@ def process_image(data):
 # === Send back to client ===
 def send_image(image_id, data, conn):
     try:
-        # Encode the ID and image data
         id_encoded = image_id.encode()
         id_length = struct.pack('>I', len(id_encoded))
         payload = id_length + id_encoded + data
 
-        # Send the payload
-        conn.sendall(struct.pack('>I', len(payload)) + payload)
+        # Prepend response prefix 'R' and include payload length
+        full_payload = b'R' + struct.pack('>I', len(payload)) + payload
+        conn.sendall(full_payload)
 
-        # Calculate and log the duration
         if image_id in send_times:
             duration = time.time() - send_times.pop(image_id)
             print(f"[Send] Image ID: {image_id}, Duration: {duration:.2f} seconds")
     except Exception as e:
         print(f"[Send] Error: {e}")
-        return
+
         
 # === Server setup ===
 def handle_client(conn, status_conn, addr):
