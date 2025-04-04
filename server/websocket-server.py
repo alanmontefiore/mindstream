@@ -13,7 +13,7 @@ WIDTH, HEIGHT = 512, 512
 
 class Args:
     taesd = True
-    acceleration = "none"  # or tensorrt or xformers
+    acceleration = "tensorrt"  # or tensorrt or xformers
     safety_checker = False
     engine_dir = "engines"
 
