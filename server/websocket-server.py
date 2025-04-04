@@ -29,6 +29,7 @@ pipeline = Pipeline(
 shared_params = InputParams()
 
 async def handle_json_status(message):
+    global shared_params
     try:
         status_data = json.loads(message)
         print(f"[Metadata] Received status_data: {status_data}")
