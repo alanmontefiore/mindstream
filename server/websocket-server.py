@@ -32,6 +32,7 @@ async def handle_json_status(message):
     try:
         status_data = json.loads(message)
         print(f"[Metadata] Received status_data: {status_data}")
+        shared_params = shared_params.copy(update=status_data)
     except json.JSONDecodeError:
         print("[Warning] Invalid JSON received.")
 

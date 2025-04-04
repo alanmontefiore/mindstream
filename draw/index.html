@@ -7,6 +7,7 @@
         <link rel="stylesheet" href="./draw.css" />
         <script src="./websocket.js"></script>
         <script src="./draw.js"></script>
+        <script src="./settings.js"></script>
         <script src="./effects/hexagon.js"></script>
 
     </head>
@@ -39,6 +40,15 @@
             </div>
             <button id="hexagonButton">
                 <img src="./hexagon.svg" alt="Hexagon Icon" width="16" height="16">
+            </button>
+        </div>
+        <div class="settings">
+            <input type="text" id="promptInput" value="scifi, cats" />
+            <input type="number" id="qualityInput" value="88" />
+            <input type="number" id="seedInput" value="1234" />
+            <input type="number" id="guidanceInput" value="1.4" />
+            <button id="updateButton">
+                Update
             </button>
         </div>
     </body>

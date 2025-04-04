@@ -61,3 +61,7 @@ button {
     width: 512px;
     height: 512px;
 }
+
+#updateButton {
+    height: 36px;
+}
