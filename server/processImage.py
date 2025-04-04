@@ -39,7 +39,7 @@ def process_image(pipeline, image_bytes: bytes, shared_params: InputParams):
 
         # Encode and enqueue
         buf = io.BytesIO()
-        output_image.save(buf, format="JPEG", quality=quality)
+        output_image.save(buf, format="webp", quality=quality)
 
         return buf.getvalue()
     
