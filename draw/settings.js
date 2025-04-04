@@ -1,14 +1,14 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const status_data = {
-    prompt: "psychedelic patterns, cats, colorful",
-    width: 512,
-    height: 512,
-    quality: 85,
-    seed: 42,
-    num_inference_steps: 50,
-    guidance_scale: 5.2,
-  };
+const status_data = {
+  prompt: "psychedelic patterns, cats, colorful",
+  width: 512,
+  height: 512,
+  quality: 85,
+  seed: 42,
+  num_inference_steps: 50,
+  guidance_scale: 5.2,
+};
 
+document.addEventListener("DOMContentLoaded", () => {
   const updateButton = document.getElementById("updateButton");
 
   updateButton.addEventListener("click", () => {

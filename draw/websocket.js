@@ -8,15 +8,6 @@ const ws = new WebSocket(`ws://${HOST}:${PORT}/ws`);
 
 ws.onopen = () => {
   console.log("WebSocket connection established");
-  const status_data = {
-    prompt: "psychedelic patterns, cats, colorful",
-    width: 512,
-    height: 512,
-    quality: 85,
-    seed: 42,
-    num_inference_steps: 50,
-    guidance_scale: 5.2,
-  };
   ws.send(JSON.stringify(status_data));
 };
 
@@ -61,32 +52,28 @@ const sendCanvasFrame = () => {
   offscreenCtx.drawImage(canvas, 0, 0, SEND_CANVAS_SIZE, SEND_CANVAS_SIZE);
 
   // Convert the offscreen canvas to a blob and send it
-  offscreenCanvas.toBlob(
-    (blob) => {
-      if (blob && ws.readyState === WebSocket.OPEN) {
-        const reader = new FileReader();
-        reader.onload = async () => {
-          ws.send(reader.result);
+  offscreenCanvas.toBlob((blob) => {
+    if (blob && ws.readyState === WebSocket.OPEN) {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        ws.send(reader.result);
 
-          const response = await waitForResponse();
-          // populate the canvas with the received image
-          const img = new Image();
-          img.src = URL.createObjectURL(new Blob([response]));
+        const response = await waitForResponse();
+        // populate the canvas with the received image
+        const img = new Image();
+        img.src = URL.createObjectURL(new Blob([response]));
 
-          img.onload = () => {
-            const ctx = resultCanvas.getContext("2d");
-            ctx.drawImage(img, 0, 0, resultCanvas.width, resultCanvas.height);
-            URL.revokeObjectURL(img.src);
-          };
-
-          img.onerror = (error) => {
-            console.error("Error loading image:", error);
-          };
+        img.onload = () => {
+          const ctx = resultCanvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, resultCanvas.width, resultCanvas.height);
+          URL.revokeObjectURL(img.src);
         };
-        reader.readAsArrayBuffer(blob);
-      }
-    },
-    "image/webp",
-    IMAGE_QUALITY
-  );
+
+        img.onerror = (error) => {
+          console.error("Error loading image:", error);
+        };
+      };
+      reader.readAsArrayBuffer(blob);
+    }
+  }, "image/webp");
 };
